@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { HTMLAttributes, useEffect, useRef, useState } from 'react'
 import MaxWidthWrapper from './MaxWidthWrapper'
@@ -6,6 +6,7 @@ import { useInView } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import Phone from './Phone'
 
+// Array of image paths for the reviews
 const PHONES = [
   '/testimonials/1.jpg',
   '/testimonials/2.jpg',
@@ -15,9 +16,11 @@ const PHONES = [
   '/testimonials/6.jpg',
 ]
 
+// Function to split an array into a specified number of parts
 function splitArray<T>(array: Array<T>, numParts: number) {
   const result: Array<Array<T>> = []
 
+  // Loop through the array and distribute elements into sub-arrays
   for (let i = 0; i < array.length; i++) {
     const index = i % numParts
     if (!result[index]) {
@@ -29,6 +32,7 @@ function splitArray<T>(array: Array<T>, numParts: number) {
   return result
 }
 
+// Component to render a column of review images with animation
 function ReviewColumn({
   reviews,
   className,
@@ -44,6 +48,7 @@ function ReviewColumn({
   const [columnHeight, setColumnHeight] = useState(0)
   const duration = `${columnHeight * msPerPixel}ms`
 
+  // Effect to update column height on resize
   useEffect(() => {
     if (!columnRef.current) return
 
@@ -53,6 +58,7 @@ function ReviewColumn({
 
     resizeObserver.observe(columnRef.current)
 
+    // Cleanup observer on unmount
     return () => {
       resizeObserver.disconnect()
     }
@@ -63,6 +69,7 @@ function ReviewColumn({
       ref={columnRef}
       className={cn('animate-marquee space-y-8 py-4', className)}
       style={{ '--marquee-duration': duration } as React.CSSProperties}>
+      {/* Double the reviews array for continuous marquee effect */}
       {reviews.concat(reviews).map((imgSrc, reviewIndex) => (
         <Review
           key={reviewIndex}
@@ -78,6 +85,7 @@ interface ReviewProps extends HTMLAttributes<HTMLDivElement> {
   imgSrc: string
 }
 
+// Component to render a single review image with fade-in animation
 function Review({ imgSrc, className, ...props }: ReviewProps) {
   const POSSIBLE_ANIMATION_DELAYS = [
     '0s',
@@ -88,6 +96,7 @@ function Review({ imgSrc, className, ...props }: ReviewProps) {
     '0.5s',
   ]
 
+  // Randomly select an animation delay
   const animationDelay =
     POSSIBLE_ANIMATION_DELAYS[
       Math.floor(Math.random() * POSSIBLE_ANIMATION_DELAYS.length)
@@ -106,6 +115,7 @@ function Review({ imgSrc, className, ...props }: ReviewProps) {
   )
 }
 
+// Component to render the grid of review columns
 function ReviewGrid() {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const isInView = useInView(containerRef, { once: true, amount: 0.4 })
@@ -120,6 +130,7 @@ function ReviewGrid() {
       className='relative -mx-4 mt-16 grid h-[49rem] max-h-[150vh] grid-cols-1 items-start gap-8 overflow-hidden px-4 sm:mt-20 md:grid-cols-2 lg:grid-cols-3'>
       {isInView ? (
         <>
+          {/* First review column */}
           <ReviewColumn
             reviews={[...column1, ...column3.flat(), ...column2]}
             reviewClassName={(reviewIndex) =>
@@ -130,6 +141,7 @@ function ReviewGrid() {
             }
             msPerPixel={10}
           />
+          {/* Second review column */}
           <ReviewColumn
             reviews={[...column2, ...column3[1]]}
             className='hidden md:block'
@@ -138,6 +150,7 @@ function ReviewGrid() {
             }
             msPerPixel={15}
           />
+          {/* Third review column */}
           <ReviewColumn
             reviews={column3.flat()}
             className='hidden md:block'
@@ -145,12 +158,15 @@ function ReviewGrid() {
           />
         </>
       ) : null}
+      {/* Top gradient overlay */}
       <div className='pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-100' />
+      {/* Bottom gradient overlay */}
       <div className='pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-100' />
     </div>
   )
 }
 
+// Main component to render the reviews section
 export function Reviews() {
   return (
     <MaxWidthWrapper className='relative max-w-5xl'>
